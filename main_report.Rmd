@@ -6,21 +6,24 @@ output:
   html_document:
     theme: darkly
     highlight: haddock
-   # code_folding: hide  # hide code by default
+    # code_folding: hide  # hide code by default
     toc: true # table of content true
     toc_depth: 4  # upto three depths of headings (specified by #, ## and ###)
     number_sections: false  ## if you want number sections at each table header
     toc_float: true
     css: css_perso.css
-editor_options: 
-  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, include = TRUE, message = F, warning = F)
 ```
 
-# Plan of action
+```{r, echo = F, results = F, message = F, warning= F, include = F}
+library(tidyverse)
+```
+
+
+# PLAN OF ACTION
 ## Idea on what we could do
 
 - **Basic visualisation** 
@@ -51,12 +54,11 @@ The better would be to go *crescendo* in term of complexity and maybe focus on t
 <br>
 <br>
 
-# Data importation
-`data` have been pre-treated within the script <script>. 
-
-```{r}
+# DATA IMPORTATION
+```{r, echo = T}
 # Demographic trends populations dataset
-trends_populations = read.csv("trends_populations.csv", row.names = NULL) %>%
+trends_populations <- 
+  read_csv("~/edges_abundance/trends_populations.csv") %>%
   dplyr::filter(Group != "Reptiles") %>%
   dplyr::mutate(
     lat_abs = abs(Latitude),
@@ -66,18 +68,23 @@ trends_populations = read.csv("trends_populations.csv", row.names = NULL) %>%
   )
 
 # Crossing equator populations are removed
-df_decrease <- trends_populations %>% 
+df_decrease <- 
+  trends_populations %>% 
   dplyr::filter(cross_equator == 0)
+
+head(df_decrease)
 ```
 
 <br>
 <br>
 
 # Data visualisation
-## Variables distributions
-```{r}
-
+## Variables distributions  
+```{r, cache = T}
+# MODEL
 ```
+
+
 
 <br>
 
@@ -107,4 +114,22 @@ This part aims to
 
 <br>
 <br>
+
+# Multivariate model
+## Bivariate
+```{r}
+
+```
+
+<br>
+
+## Ordinal
+```{r}
+
+```
+
+<br>
+
+
+
 

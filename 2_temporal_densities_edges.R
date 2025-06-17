@@ -26,7 +26,7 @@ library(lme4)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 ### IMPORTING DATA ####
-trends_populations = read.csv("trends_populations.csv", row.names=NULL)%>% 
+trends_populations = read.csv("trends_populations.csv", row.names=NULL) %>% 
   dplyr::filter(Group != "Reptiles") %>% 
   dplyr::mutate(lat_abs = abs(Latitude),
                 lat_abs_scaled = scale(lat_abs),
