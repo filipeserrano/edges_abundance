@@ -51,9 +51,60 @@ The better would be to go *crescendo* in term of complexity and maybe focus on t
 <br>
 <br>
 
-## Data importation
+# Data importation
 `data` have been pre-treated within the script <script>. 
 
 ```{r}
-summary(cars)
+# Demographic trends populations dataset
+trends_populations = read.csv("trends_populations.csv", row.names = NULL) %>%
+  dplyr::filter(Group != "Reptiles") %>%
+  dplyr::mutate(
+    lat_abs = abs(Latitude),
+    lat_abs_scaled = scale(lat_abs),
+    reldist_trailing_scaled = scale(reldist_trailing),
+    reldist_leading_scaled = scale(reldist_leading)
+  )
+
+# Crossing equator populations are removed
+df_decrease <- trends_populations %>% 
+  dplyr::filter(cross_equator == 0)
 ```
+
+<br>
+<br>
+
+# Data visualisation
+## Variables distributions
+```{r}
+
+```
+
+<br>
+
+## Variables sample size per group
+```{r}
+
+```
+
+<br>
+<br>
+
+# Univariate modeling
+This part aims to 
+
+## Decreasing $y_d$
+```{r}
+
+```
+
+<br>
+<br>
+
+## Increasing $y_i$ 
+```{r}
+
+```
+
+<br>
+<br>
+
