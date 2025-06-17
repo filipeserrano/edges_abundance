@@ -1,0 +1,42 @@
+h1 {
+  font-weight: bold;
+  border-bottom: 4px solid white;
+  padding-bottom: 5px;
+}
+
+h2 {
+  font-weight: bold;
+  border-bottom: 1px solid white;
+  padding-bottom: 5px;
+}
+
+
+body {
+  font-size: 20px; /* Ajuste la taille du texte */
+}
+
+  p {
+    text-align: justify;
+  }
+
+
+/* Widen the floating TOC */
+#toc {
+  width: 900px !important;
+}
+
+/* TOCify-specific styling */
+div.tocify,
+div.tocify ul,
+div.tocify li,
+div.tocify-item,
+div.tocify-subheader,
+div.tocify-header {
+  font-size: 14px !important;
+}
+
+/* Ajuste le contenu principal */
+#main-content {
+  margin-left: 320px;
+}
+

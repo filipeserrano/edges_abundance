@@ -1,0 +1,59 @@
+---
+title: "Edges, abundances and sun"
+author: "Filipey and Piew"
+date: "2025-06-17"
+output: 
+  html_document:
+    theme: darkly
+    highlight: haddock
+   # code_folding: hide  # hide code by default
+    toc: true # table of content true
+    toc_depth: 4  # upto three depths of headings (specified by #, ## and ###)
+    number_sections: false  ## if you want number sections at each table header
+    toc_float: true
+    css: css_perso.css
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Plan of action
+## Idea on what we could do
+
+- **Basic visualisation** 
+  - simple representation of the variables relation
+  - sample size and distribution of the predictor
+  
+  <br>
+  
+- **Univariate model selection** 
+  - $y_d$ (decreasing) - `[0, 1]`
+  - $y_i$ (increasing) - `[0, 1]`
+
+<br>
+
+- **Multivariate model** 
+  - Fixed and random structured selected during univariate model selection
+  - Test for bivariate model $(y_d, y_i)$ using `brms`
+  - Test for trivariate model with the constant dynamic $y_c$ : $(y_d, y_c, y_i)$
+
+<br>
+<br>
+
+## Some considerations
+
+The better would be to go *crescendo* in term of complexity and maybe focus on the modelisation of the demographic dynamics **at the taxa levels** for a first try, and then analyse the specific-slopes. With that in mind, we have to think on the way we'll sort the dataframe. At the **population level**, could be useful to keep all the statistical power we have, but at the deeper (specific) level, maybe filter by species' population sample size.
+
+
+<br>
+<br>
+
+## Data importation
+`data` have been pre-treated within the script <script>. 
+
+```{r}
+summary(cars)
+```
