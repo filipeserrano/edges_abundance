@@ -26,8 +26,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load-packages, include=FALSE}
 library(dplyr)
+library(tidyr)
 library(magrittr)
+library(tidyverse)
 library(knitr)
+library(ggdist) # only if rainplot
 library(ggplot2)
 library(glmmTMB)
 library(DHARMa)
@@ -115,6 +118,8 @@ trends_hist_group = trends_populations %>%
        y = "Density of records") + scale_alpha(guide = 'none')
 
 print(trends_hist_group)
+ggsave(plot = last_plot(),"trends_hist_group.jpg")
+
 ```
 
 Populations are mostly sampled far away from the edges, although
@@ -181,7 +186,7 @@ decrease6 <- glmmTMB(formula = decreasing ~ -1 + reldist_trailing_scaled + Group
                       data = df_decrease,
                       na.action = "na.fail")
 
-summary(decrease6)
+summary(decrease6) 
 
 # testing collinearity
 performance::check_collinearity(
@@ -196,7 +201,10 @@ performance(decrease6) # very low R2
 
 mod_data_decrease = get_model_data(decrease6, terms = c("reldist_trailing_scaled", "Group"), type = "pred") %>% 
   as.data.frame()
+```
 
+```{r}
+# plotting the predicted values for the best model
 plot_decrease6 = plot(ggeffects::ggpredict(decrease6, terms = c("reldist_trailing_scaled", "Group"), typical = "weighted_mean", interval = "confidence"))+
   scale_fill_manual(values = cols1) +
   scale_color_manual(values = cols1) + theme_classic() +
@@ -204,29 +212,161 @@ plot_decrease6 = plot(ggeffects::ggpredict(decrease6, terms = c("reldist_trailin
   ylab("Probability of decreasing") 
 
 print(plot_decrease6)
+ggsave(plot = last_plot(),"predicted_decreasing_trailing.jpg")
 
-plot_decrease6_year = plot(ggeffects::ggpredict(decrease1, terms = c("last_year"), type = "random")) + 
+
+# plotting the predicted values for the random effect (last year of sampling)
+plot_decrease6_year = plot(ggeffects::ggpredict(decrease6, terms = c("last_year"), type = "random")) + 
   theme_classic() +
   xlab("Final year of sampling") +
-  ylab("Probability of increasing") 
+  ylab("Probability of decreasing") 
 
 print(plot_decrease6_year)
+ggsave(plot = last_plot(),"lastyear_decreasing_trailing.jpg")
+
+# getting the slope of relative distance to trailing edge on the log-odds of probability of decreasing
+fixed_slope_decrease <- fixef(decrease6)$cond["reldist_trailing_scaled"]
 
 
-plot(ggeffects::ggpredict(decrease6, terms = c("Species"), type = "random")) + 
-  theme_classic() +
-  xlab("Final year of sampling") +
-  ylab("Probability of increasing") 
+# by selecting only the random effect of species (nested within group), converting values from the log-odds to probability 
+ranef_mod_decrease= ranef(decrease6) %>% 
+  as.data.frame() %>% 
+  dplyr::filter(grpvar != "last_year") %>% 
+  tidyr::separate(grp, c("Species", "Group"),sep=":",remove=F) %>% 
+  dplyr::mutate(prob_intercept_decrease = ifelse(term=="(Intercept)", plogis(.$condval), "NA" ), # estimated probability that specific species is decreasing at that average distance to the edge (since we scaled relative distance to trailing edge)
+                logit_lower_decrease = ifelse(term=="(Intercept)", plogis(condval - 1.96 * condsd), "NA"), # lower bound of confidence interval
+                logit_upper_decrease = ifelse(term=="(Intercept)",plogis(condval + 1.96 * condsd), "NA"),  # upper bound of confidence interval
+                group_slopes_decrease = ifelse(term=="reldist_trailing_scaled", .$condval + fixed_slope_decrease, "NA")) # species-specific slope
 
 
+plot_species_slope_decrease = ggplot(ranef_mod_decrease, aes(x = as.factor(Group), y = as.numeric(group_slopes_decrease), fill = factor(Group))) + 
+  stat_halfeye(adjust = 0.6,
+               justification = -.1,
+               .width = 0.01,
+               point_colour = NA) +
+  geom_boxplot(alpha = 0.6,
+               width = .1) +
+  scale_fill_manual(values = cols1) + theme_classic(base_size = 17) + geom_hline(yintercept = 0, color = "black", size = .7, linetype = 2) +
+  ylab("Slope of probability of decreasing x Distance to trailing edge") + 
+  xlab("") +  theme(legend.position="none",
+                    axis.text.x=element_text(size=15)) +
+  coord_flip()
+
+print(plot_species_slope_decrease)
+ggsave(plot = last_plot(),"slope_speciesgroup_decreasing_trailing.jpg")
+
+
+```
+
+
+``` {r}
+
+```
 <br> 
 <br>
 
 ## Increasing $y_i$
 
 ```{r}
+## running the global model of decrease at the trailing edge
+global_model_increase <- glmmTMB(formula = increasing ~ -1 + reldist_leading_scaled + 
+                                   (reldist_leading_scaled * Group) +                        
+                                   (reldist_leading_scaled * lat_abs_scaled) +
+                                   (lat_abs_scaled * Group) +
+                                   (reldist_leading_scaled|Species:Group) +
+                                   (1|last_year),
+                                 family = binomial,
+                                 data = trends_populations,
+                                 na.action = "na.fail")
+
+
+summary(global_model_increase)
+
+# dredge model selection
+dredge_selection_increase <- dredge(global.model = global_model_increase)
+dredge_selection_increase
+
+# the best model (lowest AIC and lower df) includes relative distance to trailing edge and group, without interaction
+increase_model <- glmmTMB(formula = increasing ~ -1 + reldist_leading_scaled + Group  + lat_abs_scaled +
+                        (reldist_leading_scaled|Species:Group) +
+                        (1|last_year),
+                      family = binomial,
+                      data = trends_populations,
+                      na.action = "na.fail")
+
+summary(increase_model)
+
+# testing collinearity
+performance::check_collinearity(
+  increase_model,
+  component = c('all') # 'all' shows both conditional and zi components
+)
+
+
+(emm_increase = emmeans::emmeans(increase_model, specs = pairwise ~ Group , type = "response", adjust = "none"))[2]
+
+performance(increase_model) # low R2
+
+mod_data_increase = get_model_data(increase_model, terms = c("reldist_leading_scaled", "Group"), type = "pred") %>% 
+  as.data.frame()
 
 ```
 
+<br>
+<br>
+
+```{r}
+# plotting the predicted values for the best model
+plot_increase = plot(ggeffects::ggpredict(increase_model, terms = c("reldist_leading_scaled", "Group"), typical = "weighted_mean", interval = "confidence"))+
+  scale_fill_manual(values = cols1) +
+  scale_color_manual(values = cols1) + theme_classic() +
+  xlab("Relative distance to leading edge") +
+  ylab("Probability of increasing") 
+
+print(plot_increase)
+ggsave(plot = last_plot(),"predicted_increasing_leading.jpg")
+
+# plotting the predicted values for the random effect (last year of sampling)
+plot_increase_year = plot(ggeffects::ggpredict(increase_model, terms = c("last_year"), type = "random")) + 
+  theme_classic() +
+  xlab("Final year of sampling") +
+  ylab("Probability of increasing") 
+
+print(plot_increase_year)
+ggsave(plot = last_plot(),"lastyear_increasing_leading.jpg")
+
+# getting the slope of relative distance to trailing edge on the log-odds of probability of increasing
+fixed_slope_increase <- fixef(increase_model)$cond["reldist_leading_scaled"]
+
+
+# by selecting only the random effect of species (nested within group), converting values from the log-odds to probability 
+ranef_mod_increase= ranef(increase_model) %>% 
+  as.data.frame() %>% 
+  dplyr::filter(grpvar != "last_year") %>% 
+  tidyr::separate(grp, c("Species", "Group"),sep=":",remove=F) %>% 
+  dplyr::mutate(prob_intercept_increase = ifelse(term=="(Intercept)", plogis(.$condval), "NA" ), # estimated probability that specific species is increasing at that average distance to the edge (since we scaled relative distance to leading edge)
+                logit_lower_increase = ifelse(term=="(Intercept)", plogis(condval - 1.96 * condsd), "NA"), # lower bound of confidence interval
+                logit_upper_increase = ifelse(term=="(Intercept)",plogis(condval + 1.96 * condsd), "NA"),  # upper bound of confidence interval
+                group_slopes_increase = ifelse(term=="reldist_leading_scaled", .$condval + fixed_slope_increase, "NA")) # species-specific slope
+
+
+plot_species_slope_increase = ggplot(ranef_mod_increase, aes(x = as.factor(Group), y = as.numeric(group_slopes_increase), fill = factor(Group))) + 
+  stat_halfeye(adjust = 0.9,
+               justification = -.1,
+               .width = 0.01,
+               point_colour = NA) +
+  geom_boxplot(alpha = 0.6,
+               width = .1) +
+  scale_fill_manual(values = cols1) + theme_classic(base_size = 17) + geom_hline(yintercept = 0, color = "black", size = .7, linetype = 2) +
+  ylab("Slope of probability of increasing x Distance to leading edge") + 
+  xlab("") +  theme(legend.position="none",
+                    axis.text.x=element_text(size=15)) +
+  coord_flip()
+
+print(plot_species_slope_increase)
+ggsave(plot = last_plot(),"slope_speciesgroup_increasing_leading.jpg")
+
+
+```
 <br> <br>
 

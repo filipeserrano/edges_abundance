@@ -1307,6 +1307,102 @@ ul.task-list{list-style: none;}
 
 
 
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } 
+code span.an { color: #008000; } 
+code span.at { } 
+code span.bu { } 
+code span.cf { color: #0000ff; } 
+code span.ch { color: #008080; } 
+code span.cn { } 
+code span.co { color: #008000; } 
+code span.cv { color: #008000; } 
+code span.do { color: #008000; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.im { } 
+code span.in { color: #008000; } 
+code span.kw { color: #0000ff; } 
+code span.op { } 
+code span.ot { color: #ff4000; } 
+code span.pp { color: #ff4000; } 
+code span.sc { color: #008080; } 
+code span.ss { color: #008080; } 
+code span.st { color: #008080; } 
+code span.va { } 
+code span.vs { color: #008080; } 
+code span.wa { color: #008000; font-weight: bold; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -1559,69 +1655,48 @@ size.</p>
 <h1>Data importation</h1>
 <p><code>data</code> have been pre-treated within the script</p>
 <script>
-
-.
-
+<p>.</p>
 <!-- setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) -->
-
-
-
-<br> <br>
-
-<img src="main_report_FS_files/figure-html/unnamed-chunk-2-1.png" width="672" />
-
-Populations are mostly sampled far away from the edges, although
+<p><br> <br></p>
+<p><img src="main_report_FS_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Populations are mostly sampled far away from the edges, although
 amphibians tend to be sampled further away from the trailing edge (thus
-closer to the leading edge)
-
-
-``` r
-# Crossing equator populations are removed
-df_decrease <- trends_populations %>% 
-  dplyr::filter(cross_equator == 0)
-```
-
-<br> <br>
-
-# Data visualisation
-
-## Variables distributions
-
-
-
-<br>
-
-## Variables sample size per group
-
-
-
-<br> <br>
-
-# Univariate modeling
-
-This part aims to
-
-## Decreasing $y_d$
-
-
-``` r
-## running the global model of decrease at the trailing edge
-global_model_decrease <- glmmTMB(formula = decreasing ~ -1 + reldist_trailing_scaled + 
-                                   (reldist_trailing_scaled * Group) +                        
-                                   (reldist_trailing_scaled * lat_abs_scaled) +
-                                   (lat_abs_scaled * Group) +
-                                   (reldist_trailing_scaled|Species:Group) +
-                                   (1|last_year),
-                                 family = binomial,
-                                 data = df_decrease,
-                                 na.action = "na.fail")
-
-
-summary(global_model_decrease)
-```
-
-```
-##  Family: binomial  ( logit )
+closer to the leading edge)</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Crossing equator populations are removed</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>df_decrease <span class="ot">&lt;-</span> trends_populations <span class="sc">%&gt;%</span> </span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(cross_equator <span class="sc">==</span> <span class="dv">0</span>)</span></code></pre></div>
+<p><br> <br></p>
+</div>
+<div id="data-visualisation" class="section level1">
+<h1>Data visualisation</h1>
+<div id="variables-distributions" class="section level2">
+<h2>Variables distributions</h2>
+<p><br></p>
+</div>
+<div id="variables-sample-size-per-group" class="section level2">
+<h2>Variables sample size per group</h2>
+<p><br> <br></p>
+</div>
+</div>
+<div id="univariate-modeling" class="section level1">
+<h1>Univariate modeling</h1>
+<p>This part aims to</p>
+<div id="decreasing-y_d" class="section level2">
+<h2>Decreasing <span class="math inline">\(y_d\)</span></h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="do">## running the global model of decrease at the trailing edge</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>global_model_decrease <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(<span class="at">formula =</span> decreasing <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> reldist_trailing_scaled <span class="sc">+</span> </span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                                   (reldist_trailing_scaled <span class="sc">*</span> Group) <span class="sc">+</span>                        </span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                                   (reldist_trailing_scaled <span class="sc">*</span> lat_abs_scaled) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                                   (lat_abs_scaled <span class="sc">*</span> Group) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                                   (reldist_trailing_scaled<span class="sc">|</span>Species<span class="sc">:</span>Group) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>                                   (<span class="dv">1</span><span class="sc">|</span>last_year),</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                                 <span class="at">family =</span> binomial,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>                                 <span class="at">data =</span> df_decrease,</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                                 <span class="at">na.action =</span> <span class="st">&quot;na.fail&quot;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">summary</span>(global_model_decrease)</span></code></pre></div>
+<pre><code>##  Family: binomial  ( logit )
 ## Formula:          
 ## decreasing ~ -1 + reldist_trailing_scaled + (reldist_trailing_scaled *  
 ##     Group) + (reldist_trailing_scaled * lat_abs_scaled) + (lat_abs_scaled *  
@@ -1641,7 +1716,7 @@ summary(global_model_decrease)
 ## Number of obs: 15599, groups:  Species:Group, 1204; last_year, 49
 ## 
 ## Conditional model:
-##                                        Estimate Std. Error z value Pr(>|z|)    
+##                                        Estimate Std. Error z value Pr(&gt;|z|)    
 ## reldist_trailing_scaled                -0.03657    0.07218  -0.507  0.61238    
 ## GroupAmphibians                        -0.31042    0.10884  -2.852  0.00434 ** 
 ## GroupBirds                             -0.24749    0.05016  -4.934 8.05e-07 ***
@@ -1653,34 +1728,19 @@ summary(global_model_decrease)
 ## GroupBirds:lat_abs_scaled               0.10939    0.12855   0.851  0.39481    
 ## GroupMammals:lat_abs_scaled             0.06215    0.13662   0.455  0.64919    
 ## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
-
-``` r
-# dredge model selection
-dredge_selection_decrease <- dredge(global.model = global_model_decrease)
-```
-
-```
-## Fixed term is "disp((Int))"
-```
-
-```
-## Warning in glmmTMB(formula = decreasing ~ 0, data = df_decrease, family =
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># dredge model selection</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>dredge_selection_decrease <span class="ot">&lt;-</span> <span class="fu">dredge</span>(<span class="at">global.model =</span> global_model_decrease)</span></code></pre></div>
+<pre><code>## Fixed term is &quot;disp((Int))&quot;</code></pre>
+<pre><code>## Warning in glmmTMB(formula = decreasing ~ 0, data = df_decrease, family =
 ## binomial, : unused argument (`NA` = ~(reldist_trailing_scaled | Species:Group)
-## + (1 | last_year)) (model 0 skipped)
-```
-
-``` r
-dredge_selection_decrease
-```
-
-```
-## Global model call: glmmTMB(formula = decreasing ~ -1 + reldist_trailing_scaled + 
+## + (1 | last_year)) (model 0 skipped)</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>dredge_selection_decrease</span></code></pre></div>
+<pre><code>## Global model call: glmmTMB(formula = decreasing ~ -1 + reldist_trailing_scaled + 
 ##     (reldist_trailing_scaled * Group) + (reldist_trailing_scaled * 
 ##     lat_abs_scaled) + (lat_abs_scaled * Group) + (reldist_trailing_scaled | 
 ##     Species:Group) + (1 | last_year), data = df_decrease, family = binomial, 
-##     na.action = "na.fail", ziformula = ~0, dispformula = ~1)
+##     na.action = &quot;na.fail&quot;, ziformula = ~0, dispformula = ~1)
 ## ---
 ## Model selection table 
 ##    dsp((Int)) cnd(Grp) cnd(lat_abs_scl) cnd(rld_trl_scl) cnd(Grp:lat_abs_scl)
@@ -1739,18 +1799,164 @@ dredge_selection_decrease
 ## 5   0.000
 ## Models ranked by AICc(x) 
 ## Random terms (all models): 
-##   cond(reldist_trailing_scaled | Species:Group), cond(1 | last_year)
-```
-
-<br> <br>
-
-## Increasing $y_i$
-
-
-
-<br> <br>
-
-</script>
+##   cond(reldist_trailing_scaled | Species:Group), cond(1 | last_year)</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># the best model (lowest AIC and lower df) includes relative distance to trailing edge and group, without interaction</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>decrease6 <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(<span class="at">formula =</span> decreasing <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> reldist_trailing_scaled <span class="sc">+</span> Group  <span class="sc">+</span> </span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>                        (reldist_trailing_scaled<span class="sc">|</span>Species<span class="sc">:</span>Group) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>                        (<span class="dv">1</span><span class="sc">|</span>last_year),</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>                      <span class="at">family =</span> binomial,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>                      <span class="at">data =</span> df_decrease,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>                      <span class="at">na.action =</span> <span class="st">&quot;na.fail&quot;</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="fu">summary</span>(decrease6)</span></code></pre></div>
+<pre><code>##  Family: binomial  ( logit )
+## Formula:          
+## decreasing ~ -1 + reldist_trailing_scaled + Group + (reldist_trailing_scaled |  
+##     Species:Group) + (1 | last_year)
+## Data: df_decrease
+## 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##   20839.4   20900.6  -10411.7   20823.4     15591 
+## 
+## Random effects:
+## 
+## Conditional model:
+##  Groups        Name                    Variance Std.Dev. Corr  
+##  Species:Group (Intercept)             0.36088  0.60074        
+##                reldist_trailing_scaled 0.08979  0.29965  -0.25 
+##  last_year     (Intercept)             0.00894  0.09455        
+## Number of obs: 15599, groups:  Species:Group, 1204; last_year, 49
+## 
+## Conditional model:
+##                         Estimate Std. Error z value Pr(&gt;|z|)    
+## reldist_trailing_scaled  0.08404    0.02931   2.867  0.00414 ** 
+## GroupAmphibians         -0.28426    0.09907  -2.869  0.00411 ** 
+## GroupBirds              -0.24502    0.04774  -5.133 2.86e-07 ***
+## GroupMammals            -0.16807    0.08126  -2.068  0.03861 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># testing collinearity</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">check_collinearity</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  decrease6,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">component =</span> <span class="fu">c</span>(<span class="st">&#39;all&#39;</span>) <span class="co"># &#39;all&#39; shows both conditional and zi components</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## Model has no intercept. VIFs may not be sensible.</code></pre>
+<pre><code>## # Check for Multicollinearity
+## 
+## Low Correlation
+## 
+##                     Term  VIF   VIF 95% CI adj. VIF Tolerance Tolerance 95% CI
+##  reldist_trailing_scaled 1.02 [1.01, 1.04]     1.01      0.98     [0.96, 0.99]
+##                    Group 1.02 [1.01, 1.04]     1.01      0.98     [0.96, 0.99]</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>(<span class="at">emm_lm_c_threat_decrease =</span> emmeans<span class="sc">::</span><span class="fu">emmeans</span>(decrease6, <span class="at">specs =</span> pairwise <span class="sc">~</span> Group , <span class="at">type =</span> <span class="st">&quot;response&quot;</span>, <span class="at">adjust =</span> <span class="st">&quot;none&quot;</span>))[<span class="dv">2</span>]</span></code></pre></div>
+<pre><code>## $contrasts
+##  contrast             odds.ratio     SE  df null z.ratio p.value
+##  Amphibians / Birds        0.962 0.1019 Inf    1  -0.370  0.7111
+##  Amphibians / Mammals      0.890 0.1121 Inf    1  -0.923  0.3561
+##  Birds / Mammals           0.926 0.0846 Inf    1  -0.842  0.3998
+## 
+## Tests are performed on the log odds ratio scale</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">performance</span>(decrease6) <span class="co"># very low R2</span></span></code></pre></div>
+<pre><code>## # Indices of model performance
+## 
+## AIC       |      AICc |       BIC | R2 (cond.) | R2 (marg.) |   ICC |  RMSE
+## ---------------------------------------------------------------------------
+## 20839.356 | 20839.366 | 20900.596 |      0.119 |      0.002 | 0.118 | 0.471
+## 
+## AIC       | Sigma | Log_loss | Score_log
+## ----------------------------------------
+## 20839.356 | 1.000 |    0.634 |      -Inf</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>mod_data_decrease <span class="ot">=</span> <span class="fu">get_model_data</span>(decrease6, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">&quot;reldist_trailing_scaled&quot;</span>, <span class="st">&quot;Group&quot;</span>), <span class="at">type =</span> <span class="st">&quot;pred&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span></code></pre></div>
+<pre><code>## Warning: Some of the focal terms are of type `character`. This may lead to
+##   unexpected results. It is recommended to convert these variables to
+##   factors before fitting the model.
+##   The following variables in are of type character: `Group`</code></pre>
+<pre><code>## Data were &#39;prettified&#39;. Consider using `terms=&quot;reldist_trailing_scaled
+##   [all]&quot;` to get smooth plots.</code></pre>
+<pre><code>## Warning in check_dots(..., .action = &quot;warning&quot;): unknown arguments: ci_lvl</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># plotting the predicted values for the best model</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>plot_decrease6 <span class="ot">=</span> <span class="fu">plot</span>(ggeffects<span class="sc">::</span><span class="fu">ggpredict</span>(decrease6, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">&quot;reldist_trailing_scaled&quot;</span>, <span class="st">&quot;Group&quot;</span>), <span class="at">typical =</span> <span class="st">&quot;weighted_mean&quot;</span>, <span class="at">interval =</span> <span class="st">&quot;confidence&quot;</span>))<span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> cols1) <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> cols1) <span class="sc">+</span> <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Relative distance to trailing edge&quot;</span>) <span class="sc">+</span></span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Probability of decreasing&quot;</span>) </span></code></pre></div>
+<pre><code>## Warning: Some of the focal terms are of type `character`. This may lead to
+##   unexpected results. It is recommended to convert these variables to
+##   factors before fitting the model.
+##   The following variables in are of type character: `Group`</code></pre>
+<pre><code>## Data were &#39;prettified&#39;. Consider using `terms=&quot;reldist_trailing_scaled
+##   [all]&quot;` to get smooth plots.</code></pre>
+<pre><code>## Scale for colour is already present.
+## Adding another scale for colour, which will replace the existing scale.</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">print</span>(plot_decrease6)</span></code></pre></div>
+<p><img src="main_report_FS_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="co"># plotting the predicted values for the random effect (last year of sampling)</span></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>plot_decrease6_year <span class="ot">=</span> <span class="fu">plot</span>(ggeffects<span class="sc">::</span><span class="fu">ggpredict</span>(decrease6, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">&quot;last_year&quot;</span>), <span class="at">type =</span> <span class="st">&quot;random&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Final year of sampling&quot;</span>) <span class="sc">+</span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Probability of increasing&quot;</span>) </span></code></pre></div>
+<pre><code>## Data were &#39;prettified&#39;. Consider using `terms=&quot;last_year [all]&quot;` to get
+##   smooth plots.</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">print</span>(plot_decrease6_year)</span></code></pre></div>
+<p><img src="main_report_FS_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="co"># getting the slope of relative distance to trailing edge on the log-odds of probability of decreasing</span></span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>fixed_slope_decrease <span class="ot">&lt;-</span> <span class="fu">fixef</span>(decrease6)<span class="sc">$</span>cond[<span class="st">&quot;reldist_trailing_scaled&quot;</span>]</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a><span class="co"># by selecting only the random effect of species (nested within group), converting values from the log-odds to probability </span></span>
+<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a>ranef_mod_decrease<span class="ot">=</span> <span class="fu">ranef</span>(decrease6) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(grpvar <span class="sc">!=</span> <span class="st">&quot;last_year&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">separate</span>(grp, <span class="fu">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Group&quot;</span>),<span class="at">sep=</span><span class="st">&quot;:&quot;</span>,<span class="at">remove=</span>F) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prob_intercept_decrease =</span> <span class="fu">ifelse</span>(term<span class="sc">==</span><span class="st">&quot;(Intercept)&quot;</span>, <span class="fu">plogis</span>(.<span class="sc">$</span>condval), <span class="st">&quot;NA&quot;</span> ), <span class="co"># estimated probability that specific species is decreasing at that average distance to the edge (since we scaled relative distance to trailing edge)</span></span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a>                <span class="at">logit_lower_decrease =</span> <span class="fu">ifelse</span>(term<span class="sc">==</span><span class="st">&quot;(Intercept)&quot;</span>, <span class="fu">plogis</span>(condval <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> condsd), <span class="st">&quot;NA&quot;</span>), <span class="co"># lower bound of confidence interval</span></span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a>                <span class="at">logit_upper_decrease =</span> <span class="fu">ifelse</span>(term<span class="sc">==</span><span class="st">&quot;(Intercept)&quot;</span>,<span class="fu">plogis</span>(condval <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> condsd), <span class="st">&quot;NA&quot;</span>),  <span class="co"># upper bound of confidence interval</span></span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a>                <span class="at">group_slopes_decrease =</span> <span class="fu">ifelse</span>(term<span class="sc">==</span><span class="st">&quot;reldist_trailing_scaled&quot;</span>, .<span class="sc">$</span>condval <span class="sc">+</span> fixed_slope_decrease, <span class="st">&quot;NA&quot;</span>)) <span class="co"># species-specific slope</span></span>
+<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a></span>
+<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a></span>
+<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a><span class="fu">ggplot</span>(ranef_mod_decrease, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.factor</span>(Group), <span class="at">y =</span> <span class="fu">as.numeric</span>(group_slopes_decrease), <span class="at">fill =</span> Group)) <span class="sc">+</span> </span>
+<span id="cb30-17"><a href="#cb30-17" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb30-18"><a href="#cb30-18" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> cols1) <span class="sc">+</span> <span class="fu">theme_classic</span>() <span class="sc">+</span> <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">size =</span> .<span class="dv">7</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb30-19"><a href="#cb30-19" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Slope of probability of decreasing x Distance to trailing edge&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb30-20"><a href="#cb30-20" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>,</span>
+<span id="cb30-21"><a href="#cb30-21" tabindex="-1"></a>                    <span class="at">axis.text.x=</span><span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">15</span>))</span></code></pre></div>
+<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): NAs introduced by coercion</code></pre>
+<pre><code>## Warning: Removed 1204 rows containing non-finite outside the scale range
+## (`stat_boxplot()`).</code></pre>
+<p><img src="main_report_FS_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>plot_species_slope_decrease <span class="ot">=</span> <span class="fu">ggplot</span>(ranef_mod_decrease, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.factor</span>(Group), <span class="at">y =</span> <span class="fu">as.numeric</span>(group_slopes_decrease), <span class="at">fill =</span> <span class="fu">factor</span>(Group))) <span class="sc">+</span> </span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a>  <span class="fu">stat_halfeye</span>(<span class="at">adjust =</span> <span class="fl">0.6</span>,</span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a>               <span class="at">justification =</span> <span class="sc">-</span>.<span class="dv">1</span>,</span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a>               <span class="at">.width =</span> <span class="fl">0.01</span>,</span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a>               <span class="at">point_colour =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>,</span>
+<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a>               <span class="at">width =</span> .<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> cols1) <span class="sc">+</span> <span class="fu">theme_classic</span>(<span class="at">base_size =</span> <span class="dv">17</span>) <span class="sc">+</span> <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> .<span class="dv">7</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Slope of probability of decreasing x Distance to trailing edge&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>,</span>
+<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a>                    <span class="at">axis.text.x=</span><span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">15</span>)) <span class="sc">+</span></span>
+<span id="cb34-12"><a href="#cb34-12" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span>
+<span id="cb34-13"><a href="#cb34-13" tabindex="-1"></a></span>
+<span id="cb34-14"><a href="#cb34-14" tabindex="-1"></a><span class="fu">print</span>(plot_species_slope_decrease)</span></code></pre></div>
+<pre><code>## Warning in FUN(X[[i]], ...): NAs introduced by coercion</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): NAs introduced by coercion</code></pre>
+<pre><code>## Warning: Removed 1204 rows containing missing values or values outside the scale range
+## (`stat_slabinterval()`).</code></pre>
+<pre><code>## Warning: Removed 1204 rows containing non-finite outside the scale range
+## (`stat_boxplot()`).</code></pre>
+<p><img src="main_report_FS_files/figure-html/unnamed-chunk-6-4.png" width="672" /></p>
+<p><br> <br></p>
+</div>
+<div id="increasing-y_i" class="section level2">
+<h2>Increasing <span class="math inline">\(y_i\)</span></h2>
+<p><br> <br></p>
+</div>
 </div>
 
 
