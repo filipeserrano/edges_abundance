@@ -102,6 +102,10 @@ trends_populations = read.csv("trends_populations.csv", row.names = NULL) %>%
     reldist_trailing_scaled = scale(reldist_trailing),
     reldist_leading_scaled = scale(reldist_leading)
   )
+
+mean_used <- attr(trends_populations$lat_abs_scaled, "scaled:center")
+sd_used <- attr(trends_populations$lat_abs_scaled, "scaled:scale")
+
 ```
 
 <br> <br>
@@ -317,14 +321,20 @@ mod_data_increase = get_model_data(increase_model, terms = c("reldist_leading_sc
 
 ```{r}
 # plotting the predicted values for the best model
-plot_increase = plot(ggeffects::ggpredict(increase_model, terms = c("reldist_leading_scaled", "Group"), typical = "weighted_mean", interval = "confidence"))+
+names(dose.labs) <- c("28", "1", "2")
+
+plot_increase = plot(ggeffects::ggpredict(increase_model, terms = c("reldist_leading_scaled", "Group", "lat_abs_scaled"), typical = "weighted_mean", interval = "confidence"))+
   scale_fill_manual(values = cols1) +
   scale_color_manual(values = cols1) + theme_classic() +
   xlab("Relative distance to leading edge") +
-  ylab("Probability of increasing") 
+  ylab("Probability of increasing")  
 
 print(plot_increase)
 ggsave(plot = last_plot(),"predicted_increasing_leading.jpg")
+
+# lat_abs_scaled = -1 -> 28.47651
+# lat_abs_scaled = 0 -> 41.16485
+# lat_abs_scaled = 1 -> 53.85319
 
 # plotting the predicted values for the random effect (last year of sampling)
 plot_increase_year = plot(ggeffects::ggpredict(increase_model, terms = c("last_year"), type = "random")) + 
@@ -364,7 +374,7 @@ plot_species_slope_increase = ggplot(ranef_mod_increase, aes(x = as.factor(Group
   coord_flip()
 
 print(plot_species_slope_increase)
-ggsave(plot = last_plot(),"slope_speciesgroup_increasing_leading.jpg")
+ggsave(plot = last_plot(),"slope_speciesgroup_decreasing_trailing.jpg")
 
 
 ```
