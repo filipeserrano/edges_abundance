@@ -1,0 +1,232 @@
+---
+title: "Edges, abundances and sun"
+author: "Filipey and Piew"
+date: "2025-06-17"
+output:
+  html_document:
+    theme: darkly
+    highlight: haddock
+    toc: true
+    toc_depth: 4
+    number_sections: false
+    toc_float: true
+    css: css_perso.css
+  pdf_document:
+    toc: true
+    toc_depth: '4'
+editor_options:
+  chunk_output_type: console
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-packages, include=FALSE}
+library(dplyr)
+library(magrittr)
+library(knitr)
+library(ggplot2)
+library(glmmTMB)
+library(DHARMa)
+library(MuMIn)
+library(performance)
+library(emmeans)
+library(sjPlot)
+library(ggeffects)
+
+```
+
+# Plan of action
+
+## Idea on what we could do
+
+-   **Basic visualisation**
+
+    -   simple representation of the variables relation
+    -   sample size and distribution of the predictor
+
+    <br>
+
+-   **Univariate model selection**
+
+    -   $y_d$ (decreasing) - `[0, 1]`
+    -   $y_i$ (increasing) - `[0, 1]`
+
+<br>
+
+-   **Multivariate model**
+    -   Fixed and random structured selected during univariate model
+        selection
+    -   Test for bivariate model $(y_d, y_i)$ using `brms`
+    -   Test for trivariate model with the constant dynamic $y_c$ :
+        $(y_d, y_c, y_i)$
+
+<br> <br>
+
+## Some considerations
+
+The better would be to go *crescendo* in term of complexity and maybe
+focus on the modelisation of the demographic dynamics **at the taxa
+levels** for a first try, and then analyse the specific-slopes. With
+that in mind, we have to think on the way we'll sort the dataframe. At
+the **population level**, could be useful to keep all the statistical
+power we have, but at the deeper (specific) level, maybe filter by
+species' population sample size.
+
+<br> <br>
+
+# Data importation
+
+`data` have been pre-treated within the script
+
+<script>
+
+.
+
+<!-- setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) -->
+
+```{r include=F}
+# Demographic trends populations dataset
+
+trends_populations = read.csv("trends_populations.csv", row.names = NULL) %>%
+  dplyr::filter(Group != "Reptiles") %>% #Reptiles had a much lower number of populations thus were excluded
+  dplyr::mutate(
+    lat_abs = abs(Latitude),
+    lat_abs_scaled = scale(lat_abs),
+    reldist_trailing_scaled = scale(reldist_trailing),
+    reldist_leading_scaled = scale(reldist_leading)
+  )
+```
+
+<br> <br>
+
+```{r echo=FALSE}
+
+cols1 = c("Amphibians" = "turquoise4",
+          "Mammals" = "chocolate4",
+          "Birds" = "goldenrod1")
+trends_hist_group = trends_populations %>% 
+  ggplot(., aes(x = reldist_trailing, fill = Group)) + geom_density(aes(alpha = 0.5))+ 
+  scale_fill_manual(values = cols1) + theme_classic(base_size = 18)+
+  labs(x = "Relative distance to trailing edge",
+       y = "Density of records") + scale_alpha(guide = 'none')
+
+print(trends_hist_group)
+```
+
+Populations are mostly sampled far away from the edges, although
+amphibians tend to be sampled further away from the trailing edge (thus
+closer to the leading edge)
+
+```{r}
+# Crossing equator populations are removed
+df_decrease <- trends_populations %>% 
+  dplyr::filter(cross_equator == 0)
+```
+
+<br> <br>
+
+# Data visualisation
+
+## Variables distributions
+
+```{r}
+
+```
+
+<br>
+
+## Variables sample size per group
+
+```{r}
+
+```
+
+<br> <br>
+
+# Univariate modeling
+
+This part aims to
+
+## Decreasing $y_d$
+
+```{r}
+
+## running the global model of decrease at the trailing edge
+global_model_decrease <- glmmTMB(formula = decreasing ~ -1 + reldist_trailing_scaled + 
+                                   (reldist_trailing_scaled * Group) +                        
+                                   (reldist_trailing_scaled * lat_abs_scaled) +
+                                   (lat_abs_scaled * Group) +
+                                   (reldist_trailing_scaled|Species:Group) +
+                                   (1|last_year),
+                                 family = binomial,
+                                 data = df_decrease,
+                                 na.action = "na.fail")
+
+
+summary(global_model_decrease)
+
+# dredge model selection
+dredge_selection_decrease <- dredge(global.model = global_model_decrease)
+dredge_selection_decrease
+
+# the best model (lowest AIC and lower df) includes relative distance to trailing edge and group, without interaction
+decrease6 <- glmmTMB(formula = decreasing ~ -1 + reldist_trailing_scaled + Group  + 
+                        (reldist_trailing_scaled|Species:Group) +
+                        (1|last_year),
+                      family = binomial,
+                      data = df_decrease,
+                      na.action = "na.fail")
+
+summary(decrease6)
+
+# testing collinearity
+performance::check_collinearity(
+  decrease6,
+  component = c('all') # 'all' shows both conditional and zi components
+)
+
+
+(emm_lm_c_threat_decrease = emmeans::emmeans(decrease6, specs = pairwise ~ Group , type = "response", adjust = "none"))[2]
+
+performance(decrease6) # very low R2
+
+mod_data_decrease = get_model_data(decrease6, terms = c("reldist_trailing_scaled", "Group"), type = "pred") %>% 
+  as.data.frame()
+
+plot_decrease6 = plot(ggeffects::ggpredict(decrease6, terms = c("reldist_trailing_scaled", "Group"), typical = "weighted_mean", interval = "confidence"))+
+  scale_fill_manual(values = cols1) +
+  scale_color_manual(values = cols1) + theme_classic() +
+  xlab("Relative distance to trailing edge") +
+  ylab("Probability of decreasing") 
+
+print(plot_decrease6)
+
+plot_decrease6_year = plot(ggeffects::ggpredict(decrease1, terms = c("last_year"), type = "random")) + 
+  theme_classic() +
+  xlab("Final year of sampling") +
+  ylab("Probability of increasing") 
+
+print(plot_decrease6_year)
+
+
+plot(ggeffects::ggpredict(decrease6, terms = c("Species"), type = "random")) + 
+  theme_classic() +
+  xlab("Final year of sampling") +
+  ylab("Probability of increasing") 
+
+
+<br> 
+<br>
+
+## Increasing $y_i$
+
+```{r}
+
+```
+
+<br> <br>
+
