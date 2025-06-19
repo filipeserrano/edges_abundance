@@ -197,7 +197,7 @@ performance::check_collinearity(
   decrease6,
   component = c('all') # 'all' shows both conditional and zi components
 )
-var
+
 
 (emm_lm_c_threat_decrease = emmeans::emmeans(decrease6, specs = pairwise ~ Group , type = "response", adjust = "none"))[2]
 
@@ -331,30 +331,12 @@ plot_increase1 = plot(ggeffects::ggpredict(increase_model, terms = c("reldist_le
   ylab("Probability of increasing")  
 print(plot_increase1)
 
-chosen_lat_values <- c(-1.5, 0, .5)
-cols2 = c(paste0("lat_abs_scaled [", paste(chosen_lat_values[1], collapse = ","), "]") = "red",
-          paste0("lat_abs_scaled [", paste(chosen_lat_values[2], collapse = ","), "]") = "green",
-          paste0("lat_abs_scaled [", paste(chosen_lat_values[3], collapse = ","), "]") = "blue")
 
-
-plot_increase2 = plot(ggeffects::ggpredict(increase_model, terms = c("reldist_leading_scaled", paste0("lat_abs_scaled [", paste(chosen_lat_values, collapse = ","), "]")),
-                                          typical = "weighted_mean", interval = "confidence"))+
-  scale_fill_manual(values = cols2) +
-  scale_color_manual(values = cols2) + theme_classic() +
-  xlab("Relative distance to leading edge") +
-  ylab("Probability of increasing")  
-
-cols3 = c("-1" = "orange",
-          "0"= "purple",
-          "1" = "black")
 plot_increase2a = plot(ggeffects::ggpredict(increase_model, terms = c("lat_abs_scaled"),
-                                         type = "fixed", typical = "mode", interval = "prediction"))+
+                                         type = "fixed", typical = "weighted_mean", interval = "prediction"))+
   theme_classic() +
-  xlab("Relative distance to leading edge") +
-  ylab("Probability of increasing")  +
-  scale_fill_manual(values = cols3) +
-  scale_color_manual(values = cols3, labels = c("28.47º", "41.16º", "53.85º"))
-
+  xlab("Scaled absolute latitude") +
+  ylab("Probability of increasing")  
 print(plot_increase2a)
 ggsave(plot = last_plot(),"predicted_increasing_leading.jpg")
 
