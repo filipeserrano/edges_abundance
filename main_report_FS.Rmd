@@ -27,6 +27,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r load-packages, include=FALSE}
 library(dplyr)
 library(tidyr)
+library(plyr)
 library(magrittr)
 library(tidyverse)
 library(knitr)
@@ -163,7 +164,7 @@ This part aims to
 ## Decreasing $y_d$
 
 ```{r}
-
+### MODEL DECREASE ####
 ## running the global model of decrease at the trailing edge
 global_model_decrease <- glmmTMB(formula = decreasing ~ -1 + reldist_trailing_scaled + 
                                    (reldist_trailing_scaled * Group) +                        
@@ -210,6 +211,7 @@ mod_data_decrease = get_model_data(decrease6, terms = c("reldist_trailing_scaled
 ```
 
 ```{r}
+### DECREASE DATA VIZ AND ESTIMATES ####
 # plotting the predicted values for the best model
 plot_decrease6 = plot(ggeffects::ggpredict(decrease6, terms = c("reldist_trailing_scaled", "Group"), typical = "weighted_mean", interval = "confidence"))+
   scale_fill_manual(values = cols1) +
@@ -233,17 +235,19 @@ ggsave(plot = last_plot(),"lastyear_decreasing_trailing.jpg")
 # getting the slope of relative distance to trailing edge on the log-odds of probability of decreasing
 fixed_slope_decrease <- fixef(decrease6)$cond["reldist_trailing_scaled"]
 
-
 # by selecting only the random effect of species (nested within group), converting values from the log-odds to probability 
 ranef_mod_decrease= ranef(decrease6) %>% 
   as.data.frame() %>% 
   dplyr::filter(grpvar != "last_year") %>% 
   tidyr::separate(grp, c("Species", "Group"),sep=":",remove=F) %>% 
   dplyr::mutate(prob_intercept_decrease = ifelse(term=="(Intercept)", plogis(.$condval), "NA" ), # estimated probability that specific species is decreasing at that average distance to the edge (since we scaled relative distance to trailing edge)
-                logit_lower_decrease = ifelse(term=="(Intercept)", plogis(condval - 1.96 * condsd), "NA"), # lower bound of confidence interval
-                logit_upper_decrease = ifelse(term=="(Intercept)",plogis(condval + 1.96 * condsd), "NA"),  # upper bound of confidence interval
-                group_slopes_decrease = ifelse(term=="reldist_trailing_scaled", .$condval + fixed_slope_decrease, "NA")) # species-specific slope
+                logit_lower_decrease = ifelse(term=="(Intercept)", plogis(condval - 1.96 * condsd), NA), # lower bound of confidence interval
+                logit_upper_decrease = ifelse(term=="(Intercept)",plogis(condval + 1.96 * condsd), NA),  # upper bound of confidence interval
+                group_slopes_decrease = ifelse(term=="reldist_trailing_scaled", .$condval + fixed_slope_decrease,NA)) # species-specific slope
 
+decrease_slopes = ranef_mod_decrease %>% 
+  dplyr::select(Species, Group, group_slopes_decrease) %>% 
+  dplyr::filter(!is.na(group_slopes_decrease))
 
 plot_species_slope_decrease = ggplot(ranef_mod_decrease, aes(x = as.factor(Group), y = as.numeric(group_slopes_decrease), fill = factor(Group))) + 
   stat_halfeye(adjust = 0.6,
@@ -358,16 +362,20 @@ ggsave(plot = last_plot(),"lastyear_increasing_leading.jpg")
 # getting the slope of relative distance to trailing edge on the log-odds of probability of increasing
 fixed_slope_increase <- fixef(increase_model)$cond["reldist_leading_scaled"]
 
-
 # by selecting only the random effect of species (nested within group), converting values from the log-odds to probability 
 ranef_mod_increase= ranef(increase_model) %>% 
   as.data.frame() %>% 
   dplyr::filter(grpvar != "last_year") %>% 
   tidyr::separate(grp, c("Species", "Group"),sep=":",remove=F) %>% 
-  dplyr::mutate(prob_intercept_increase = ifelse(term=="(Intercept)", plogis(.$condval), "NA" ), # estimated probability that specific species is increasing at that average distance to the edge (since we scaled relative distance to leading edge)
-                logit_lower_increase = ifelse(term=="(Intercept)", plogis(condval - 1.96 * condsd), "NA"), # lower bound of confidence interval
-                logit_upper_increase = ifelse(term=="(Intercept)",plogis(condval + 1.96 * condsd), "NA"),  # upper bound of confidence interval
-                group_slopes_increase = ifelse(term=="reldist_leading_scaled", .$condval + fixed_slope_increase, "NA")) # species-specific slope
+  dplyr::mutate(prob_intercept_increase = ifelse(term=="(Intercept)", plogis(.$condval), NA ), # estimated probability that specific species is increasing at that average distance to the edge (since we scaled relative distance to leading edge)
+                logit_lower_increase = ifelse(term=="(Intercept)", plogis(condval - 1.96 * condsd), NA), # lower bound of confidence interval
+                logit_upper_increase = ifelse(term=="(Intercept)",plogis(condval + 1.96 * condsd), NA),  # upper bound of confidence interval
+                group_slopes_increase = ifelse(term=="reldist_leading_scaled", .$condval + fixed_slope_increase, NA)) # species-specific slope
+
+
+increase_slopes = ranef_mod_increase %>% 
+  dplyr::select(Species, Group, group_slopes_increase) %>% 
+  dplyr::filter(!is.na(group_slopes_increase))
 
 
 plot_species_slope_increase = ggplot(ranef_mod_increase, aes(x = as.factor(Group), y = as.numeric(group_slopes_increase), fill = factor(Group))) + 
@@ -727,3 +735,8 @@ plot_species_slope_constant = ggplot(ranef_mod_constant, aes(x = as.factor(Group
 print(plot_species_slope_constant)
 ggsave(plot = last_plot(),"slope_speciesgroup_decreasing_trailing.jpg")
 ```
+
+
+```{r}
+
+````
